@@ -77,6 +77,63 @@ namespace jtbc
 		{
 			return str;
 		}
+
+		public static string getNroute()
+		{
+			string str = "";
+			string argString = HttpContext.Current.Request.ServerVariables["URL"];
+			string argKey = encode.base64.encodeBase64(cls.getLRStr(argString, "/", "leftr"));
+			string str4 = cls.getLRStr(cls.getLRStr(argString, "/", "leftr"), "/", "right");
+			if (str4 == "")
+			{
+				str4 = ":root";
+			}
+			argKey = argKey + encode.base64.encodeBase64(str4);
+			str = getNroute(argKey);
+			if (str == "")
+			{
+				if (System.IO.File.Exists(HttpContext.Current.Server.MapPath("web.config")))
+				{
+					str = "root";
+				}
+				else if (System.IO.File.Exists(HttpContext.Current.Server.MapPath("../web.config")))
+				{
+					str = "node";
+				}
+				else if (System.IO.File.Exists(HttpContext.Current.Server.MapPath("../../web.config")))
+				{
+					str = "child";
+				}
+				else if (System.IO.File.Exists(HttpContext.Current.Server.MapPath("../../../web.config")))
+				{
+					str = "grandchild";
+				}
+				else if (System.IO.File.Exists(HttpContext.Current.Server.MapPath("../../../../web.config")))
+				{
+					str = "greatgrandchild";
+				}
+				string[,] strArray = new string[,] { { argKey, str } };
+				application.set("route", cls.mergeAry((string[,])application.get("route"), strArray));
+			}
+			return str;
+		}
+
+		public static string getNroute(string argKey)
+		{
+			string[,] strArray = (string[,])application.get("route");
+			if (strArray != null)
+			{
+				string str2 = cls.getString(argKey);
+				for (int i = 0; i < strArray.GetLength(0); i++)
+				{
+					if (strArray[i, 0] == str2)
+					{
+						return strArray[i, 1];
+					}
+				}
+			}
+			return "";
+		}
 	}
 }
 

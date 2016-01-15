@@ -8,12 +8,4 @@ namespace WebApi.Models
         public string category { get; set; }
         public decimal price { get; set; }
     }
-
-	public class User
-	{
-		public int ID { get; set; }
-		public string username { get; set; }
-		public decimal age { get; set; }
-		public string gender { get; set; }
-	}
 }

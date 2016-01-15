@@ -74,12 +74,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="default.html" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Code\WebApi\Controllers\ProductsController.cs" />
-    <Content Include="App_Code\WebApi\Models\Product.cs" />
+    <Content Include="App_Code\WebApi\Controllers\WebApiControllers.cs" />
+    <Content Include="App_Code\WebApi\Models\WebApiModels.cs" />
     <Content Include="App_Code\jtbc\account.cs" />
     <Content Include="App_Code\jtbc\application.cs" />
     <Content Include="App_Code\jtbc\cls.cs" />
