@@ -74,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\test.mdb" />
     <Content Include="default.html" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
@@ -81,7 +82,6 @@
   <ItemGroup>
     <Content Include="App_Code\WebApi\Controllers\WebApiControllers.cs" />
     <Content Include="App_Code\WebApi\Models\WebApiModels.cs" />
-    <Content Include="App_Code\jtbc\account.cs" />
     <Content Include="App_Code\jtbc\application.cs" />
     <Content Include="App_Code\jtbc\cls.cs" />
     <Content Include="App_Code\jtbc\com.cs" />
@@ -98,7 +98,7 @@
     <Content Include="App_Code\jtbc\validator.cs" />
     <Content Include="App_Code\jtbc.dbc\access.cs" />
     <Content Include="App_Code\jtbc.dbc\dbc.cs" />
-    <Content Include="App_Code\jtbc.dbc\mssql.cs" />
+    <None Include="App_Code\jtbc.dbc\mssql.cs.bak" />
     <Content Include="App_Code\jtbc\config.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -114,9 +114,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

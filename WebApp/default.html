@@ -2,20 +2,97 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title></title>
-	<script src="http://code.jquery.com/jquery.js"></script>
+<title></title>
+<script src="http://code.jquery.com/jquery.js"></script>
+<style>
+label {display:inline-block; width: 90px; margin-right: 5px;}
+</style>
 </head>
 <body>
+<h2>查询所有数据</h2>
+<div>
+	<p><button id="getAll">查询</button></p>
+</div>
+<h2>查询单一数据</h2>
+<div>
+	<p>ID: <input type="text" size="5" maxlength="4" /><button id="get">查询</button></p>
+</div>
+<h2>添加数据</h2>
+<div>
+	<label>Username: </label><input type="text" name="username" /><br />
+	<label>Age: </label><input type="text" name="age" /><br />
+	<label>Gender: </label><input type="text" name="gender" /><br />
+	<button id="post">添加</button>
+</div>
 <script>
-	$(function () {
+$(function () {
+	function showUsers(list) {
+		var html = '<table style="min-width:400px;">';
+		if (list.length) {
+			for (var i = 0; i < list.length; i++) {
+				if (i == 0) {
+					html += '<tr>';
+					for (var key in list[i]) {
+						html += '<th style="text-align:left;">' + key + '</th>';
+					}
+					html += '</tr>';
+				}
+				html += '<tr>';
+				for (var key in list[i]) {
+					html += '<td>' + list[i][key] + '</td>';
+				}
+				html += '</tr>';
+			}
+		} else {
+			html += '<tr><td>没有找到数据</td></tr>';
+		}
+		html += '</table>';
+		return html;
+	}
+
+	$('#getAll').on('click', function () {
+		var $btn = $(this);
 		$.ajax({
-			url: '/api/users/1',
-			// dataType: 'jsonp',
+			url: '/api/users',
+			dataType: 'json',
 			type: 'get'
 		}).done(function (data) {
-			console.log(data);
-		})
+			var html = showUsers(data.users);
+			var $div = $btn.closest('div');
+			$div.find('table').remove().end().append(html);
+		});
 	});
+
+	$('#get').on('click', function () {
+		var $btn = $(this), id = $btn.prev().val();
+		$.ajax({
+			url: '/api/users/' + id,
+			dataType: 'json',
+			type: 'get'
+		}).done(function (data) {
+			var html = showUsers(data.users);
+			var $div = $btn.closest('div');
+			$div.find('table').remove().end().append(html);
+		});
+	});
+
+	$('#post').on('click', function () {
+		var $btn = $(this), $div = $btn.closest('div');
+		var data = {};
+		$div.find(':text').each(function () {
+			var $text = $(this);
+			data[$text.attr('name')] = $text.val();
+		});
+		$.ajax({
+			url: '/api/users',
+			dataType: 'json',
+			type: 'post',
+			data: data
+		}).done(function (data) {
+			console.log(data);
+		});
+	});
+});
 </script>
 </body>
 </html>

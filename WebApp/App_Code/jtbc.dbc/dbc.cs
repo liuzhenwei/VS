@@ -1,18 +1,16 @@
 namespace jtbc.dbc
 {
     using System;
+	using System.Collections.Generic;
 
     public interface dbc
     {
         void Execute(string argString);
         int Executes(string argString);
-        bool fixTableColumns(string argTable);
-        object[] getDataAry(string argString);
-        string getEMessage();
-        string getFieldList(string argString);
+		Dictionary<string, object>[] getDataAry(string argString);
+		string getFieldList(string argString);
+		string getEMessage();
         int getRState();
-        object getValue(object[,] argAry, int argIndex);
-        object getValue(object[,] argAry, string argString);
         void setConnStr(string argString);
     }
 }

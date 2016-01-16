@@ -53,17 +53,6 @@ namespace jtbc.dbc
             return num;
         }
 
-        public virtual bool fixTableColumns(string argTable)
-        {
-            bool flag = false;
-            string argObject = argTable;
-            if (!cls.isEmpty(argObject))
-            {
-                flag = true;
-            }
-            return flag;
-        }
-
         public virtual object[] getDataAry(string argString)
         {
             this.rState = 0;
@@ -98,11 +87,6 @@ namespace jtbc.dbc
             return objArray;
         }
 
-        public virtual string getEMessage()
-        {
-            return this.eMessage;
-        }
-
         public virtual string getFieldList(string argString)
         {
             string cmdText = argString;
@@ -132,23 +116,14 @@ namespace jtbc.dbc
             return argObject;
         }
 
+		public virtual string getEMessage()
+		{
+			return this.eMessage;
+		}
+
         public virtual int getRState()
         {
             return this.rState;
-        }
-
-        public virtual object getValue(object[,] argAry, int argIndex)
-        {
-            object[,] objArray = argAry;
-            int num = argIndex;
-            return objArray[num, 1];
-        }
-
-        public virtual object getValue(object[,] argAry, string argString)
-        {
-            object[,] objArray = argAry;
-            string str = argString;
-            return com.getAryValue(objArray, str);
         }
 
         public virtual void setConnStr(string argString)

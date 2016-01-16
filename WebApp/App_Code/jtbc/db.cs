@@ -7,22 +7,27 @@ namespace jtbc
     {
         private jtbc.dbc.dbc tDbc = null;
 
-        public db()
+        public db(int dbType = 0, string connStr = "")
         {
-            string dbtype = config.dbtype;
-            string connStr = config.connStr;
-            switch (dbtype)
+			switch (dbType)
             {
-                case "0":
+                case 0:
                     this.tDbc = new access();
                     break;
-
-                case "1":
-                    this.tDbc = new mssql();
+                case 1:
+                    // this.tDbc = new mssql();
                     break;
             }
-            this.tDbc.setConnStr(connStr);
+			if (connStr != "")
+			{
+				setConnStr(connStr);
+			}  
         }
+
+		public void setConnStr(string connStr)
+		{
+			this.tDbc.setConnStr(connStr);
+		}
 
         public void Execute(string argString)
         {
@@ -32,11 +37,6 @@ namespace jtbc
         public int Executes(string argString)
         {
             return this.tDbc.Executes(argString);
-        }
-
-        public bool fixTableColumns(string argTable)
-        {
-            return this.tDbc.fixTableColumns(argTable);
         }
 
         public object[] getDataAry(string argString)
@@ -57,16 +57,6 @@ namespace jtbc
         public int getRState()
         {
             return this.tDbc.getRState();
-        }
-
-        public object getValue(object[,] argAry, int argIndex)
-        {
-            return this.tDbc.getValue(argAry, argIndex);
-        }
-
-        public object getValue(object[,] argAry, string argString)
-        {
-            return this.tDbc.getValue(argAry, argString);
         }
     }
 }

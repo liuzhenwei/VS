@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
+using jtbc;
 
 namespace WebApi.Controllers
 {
@@ -32,24 +33,15 @@ namespace WebApi.Controllers
         }
     }
 
-	public class Ret : Dictionary<string, object>{
-		
-	}
-
 	public class UsersController : ApiController
 	{
 		public Dictionary<string, object>[] users;
 
+		// GET api/<controller>
 		public IHttpActionResult GetAllUsers()
 		{
-			Dictionary<string, object> user = new Dictionary<string, object>();
-			user.Add("ID", 1);
-			user.Add("username", "Tomato");
-			user.Add("age", 5);
-			user.Add("gender", "女");
-
-			users = new Dictionary<string, object>[1];
-			users[0] = user;
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			users = (Dictionary<string, object>[])db.getDataAry("select * from users");
 
 			Dictionary<string, object> ret = new Dictionary<string, object>();
 			ret.Add("errorCode", 0);
@@ -57,35 +49,42 @@ namespace WebApi.Controllers
 			return Ok(ret);
 		}
 
+		// GET api/<controller>/<id>
 		public IHttpActionResult GetUesr(int id)
 		{
-			users = new Dictionary<string, object>[2];
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			users = (Dictionary<string, object>[])db.getDataAry("select * from users");
 
-			Dictionary<string, object> user = new Dictionary<string, object>();
-			user.Add("ID", 1);
-			user.Add("username", "Tomato");
-			user.Add("age", 5);
-			user.Add("gender", "女");
-			users[0] = user;
+			var user = users.FirstOrDefault(u => u.ContainsValue(id));
 
-			user = new Dictionary<string, object>();
-			user.Add("ID", 2);
-			user.Add("username", "Jerry");
-			user.Add("age", 25);
-			user.Add("gender", "男");
-			users[1] = user;
-
-			var _user = users.FirstOrDefault(u => u.ContainsValue(id));
 			Dictionary<string, object> ret = new Dictionary<string, object>();
 			ret.Add("errorCode", 0);
-			if (_user == null)
+			if (user == null)
 			{
 				ret.Add("users", new Dictionary<string, object>[0]);
 			}
 			else {
-				ret.Add("users", new Dictionary<string, object>[]{_user});
+				ret.Add("users", new Dictionary<string, object>[]{user});
 			}
 			return Ok(ret);
+		}
+
+		// POST api/<controller>
+		public IHttpActionResult Post([FromBody]string value)
+		{
+			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("errorCode", 0);
+			return Ok(ret);
+		}
+
+		// PUT api/<controller>/<id>
+		public void Put(int id, [FromBody]string value)
+		{
+		}
+
+		// DELETE api/<controller>/<id>
+		public void Delete(int id)
+		{
 		}
 	}
 }
