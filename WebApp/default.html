@@ -87,7 +87,8 @@ $(function () {
 			url: '/api/users',
 			dataType: 'json',
 			type: 'post',
-			data: data
+			data: JSON.stringify(data),
+			contentType: 'application/json'
 		}).done(function (data) {
 			console.log(data);
 		});

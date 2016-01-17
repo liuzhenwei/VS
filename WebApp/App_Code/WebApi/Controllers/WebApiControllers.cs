@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
+using System.Text.RegularExpressions;
 using jtbc;
 
 namespace WebApi.Controllers
@@ -70,9 +71,30 @@ namespace WebApi.Controllers
 		}
 
 		// POST api/<controller>
-		public IHttpActionResult Post([FromBody]string value)
+		public IHttpActionResult Post([FromBody]Dictionary<string, object> value)
 		{
 			Dictionary<string, object> ret = new Dictionary<string, object>();
+			string sql = "INSERT INTO users ";
+			string tbn = "";
+			string val = "";
+			foreach (var kv in value)
+			{
+				tbn += kv.Key + ",";
+				Regex isNumeric = new Regex(@"^[\d\.]+$");
+				if (isNumeric.IsMatch((string)kv.Value))
+				{
+					val += kv.Value + ",";
+				}
+				else
+				{
+					val += "'" + kv.Value + "',";
+				}
+			}
+			sql += "(" + tbn.Substring(0, tbn.Length - 1) + ") VALUES (" + val.Substring(0, val.Length - 1) + ")";
+
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			db.Execute(sql);
+
 			ret.Add("errorCode", 0);
 			return Ok(ret);
 		}
