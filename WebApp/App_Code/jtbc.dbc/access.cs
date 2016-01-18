@@ -6,6 +6,7 @@ namespace jtbc.dbc
 	using System.Data.OleDb;
     using System.Reflection;
     using System.Web;
+	using System.Text.RegularExpressions;
 
     public class access : jtbc.dbc.dbc
     {
@@ -63,6 +64,48 @@ namespace jtbc.dbc
 			}
 			return num;
         }
+
+		public virtual int Insert(string strSQL)
+		{
+			this.rState = 0;
+			int num = 0;
+			if (!cls.isEmpty(strSQL))
+			{
+				Regex getName = new Regex(@"into\s(.*?)\s\(", RegexOptions.IgnoreCase);
+				Match matches = getName.Match(strSQL);
+				string name = matches.Groups[1].Value;
+
+				OleDbConnection connection = new OleDbConnection(this.connStr);
+				connection.Open();
+				OleDbCommand cmd = new OleDbCommand();
+				OleDbTransaction trans = connection.BeginTransaction(); //创建事务
+				cmd.Connection = connection;
+				cmd.Transaction = trans;
+				try
+				{
+					cmd.CommandText = strSQL;
+					cmd.ExecuteNonQuery();
+					cmd.CommandText = "SELECT @@identity FROM " + name;
+					trans.Commit(); //提交事务
+					num = Convert.ToInt32(cmd.ExecuteScalar());
+				}
+				catch (Exception exception)
+				{
+					trans.Rollback();
+					this.rState = 2;
+					this.eMessage = exception.Message;
+				}
+				finally
+				{
+					connection.Close();
+				}
+			}
+			else
+			{
+				this.rState = 999;
+			}
+			return num;
+		}
 
 		public virtual Dictionary<string, object>[] getDataAry(string strSQL)
         {

@@ -24,6 +24,10 @@ label {display:inline-block; width: 90px; margin-right: 5px;}
 	<label>Gender: </label><input type="text" name="gender" /><br />
 	<button id="post">添加</button>
 </div>
+<h2>删除数据</h2>
+<div>
+	<p>ID: <input type="text" size="5" maxlength="4" /><button id="delete">删除</button></p>
+</div>
 <script>
 $(function () {
 	function showUsers(list) {
@@ -91,6 +95,19 @@ $(function () {
 			contentType: 'application/json'
 		}).done(function (data) {
 			console.log(data);
+			if( data.errorCode == 0 ) alert('添加成功')
+		});
+	});
+
+	$('#delete').on('click', function () {
+		var $btn = $(this), id = $btn.prev().val();
+		$.ajax({
+			url: '/api/users/' + id,
+			dataType: 'json',
+			type: 'delete'
+		}).done(function (data) {
+			console.log(data);
+			if( data.errorCode == 0 ) alert('删除成功')
 		});
 	});
 });

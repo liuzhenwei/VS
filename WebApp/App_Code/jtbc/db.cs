@@ -39,6 +39,11 @@ namespace jtbc
             return this.tDbc.Executes(argString);
         }
 
+		public int Insert(string argString)
+		{
+			return this.tDbc.Insert(argString);
+		}
+
         public object[] getDataAry(string argString)
         {
             return this.tDbc.getDataAry(argString);

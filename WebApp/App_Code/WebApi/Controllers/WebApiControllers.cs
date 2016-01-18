@@ -73,7 +73,6 @@ namespace WebApi.Controllers
 		// POST api/<controller>
 		public IHttpActionResult Post([FromBody]Dictionary<string, object> value)
 		{
-			Dictionary<string, object> ret = new Dictionary<string, object>();
 			string sql = "INSERT INTO users ";
 			string tbn = "";
 			string val = "";
@@ -93,9 +92,11 @@ namespace WebApi.Controllers
 			sql += "(" + tbn.Substring(0, tbn.Length - 1) + ") VALUES (" + val.Substring(0, val.Length - 1) + ")";
 
 			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
-			db.Execute(sql);
+			int num = db.Insert(sql);
 
-			ret.Add("errorCode", 0);
+			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("errorCode", num != 0 ? 0 : db.getRState());
+			ret.Add("insertId", num);
 			return Ok(ret);
 		}
 
@@ -105,8 +106,15 @@ namespace WebApi.Controllers
 		}
 
 		// DELETE api/<controller>/<id>
-		public void Delete(int id)
+		public IHttpActionResult Delete(int id)
 		{
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			string sql = "DELETE FROM users WHERE id=" + id.ToString();
+			db.Execute(sql);
+
+			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("errorCode", 0);
+			return Ok(ret);
 		}
 	}
 }
