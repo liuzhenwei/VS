@@ -1,5 +1,4 @@
-﻿using WebApi.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,7 +8,15 @@ using jtbc;
 
 namespace WebApi.Controllers
 {
-    public class ProductsController : ApiController
+	public class Product
+	{
+		public int ID { get; set; }
+		public string prodname { get; set; }
+		public string category { get; set; }
+		public decimal price { get; set; }
+	}
+	
+	public class ProductsController : ApiController
     {
         Product[] products = new Product[] 
         { 

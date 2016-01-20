@@ -143,7 +143,9 @@ namespace jtbc.dbc
 				catch (Exception exception)
 				{
 					this.rState = 1;
-					rsArray = null;
+					var errMsg = new Dictionary<string, object>();
+					errMsg.Add("msg", "Êý¾Ý¿â²Ù×÷´íÎó: " + exception.Message);
+					rsArray = new Dictionary<string, object>[] { errMsg };
 					this.eMessage = exception.Message;
 				}
 			}
