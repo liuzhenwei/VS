@@ -8,37 +8,81 @@ using jtbc;
 
 namespace WebApi.Controllers
 {
-	public class Product
-	{
-		public int ID { get; set; }
-		public string prodname { get; set; }
-		public string category { get; set; }
-		public decimal price { get; set; }
-	}
 	
 	public class ProductsController : ApiController
     {
-        Product[] products = new Product[] 
-        { 
-            new Product { ID = 1, prodname = "Tomato Soup", category = "Groceries", price = 1 }, 
-            new Product { ID = 2, prodname = "Yo-yo", category = "Toys", price = 3.75M }, 
-            new Product { ID = 3, prodname = "Hammer", category = "Hardware", price = 16.99M } 
-        };
+		public Dictionary<string, object>[] products;
 
-        public IEnumerable<Product> GetAllProducts()
-        {
-            return products;
-        }
+		// GET api/<controller>
+		public IHttpActionResult GetAllProducts()
+		{
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			products = (Dictionary<string, object>[])db.getDataAry("select * from products");
 
-        public IHttpActionResult GetProduct(int id)
-        {
-            var product = products.FirstOrDefault((p) => p.ID == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return Ok(product);
-        }
+			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("errorCode", 0);
+			ret.Add("products", products);
+			return Ok(ret);
+		}
+
+		// GET api/<controller>/<id>
+		public IHttpActionResult GetProduct(int id)
+		{
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			products = (Dictionary<string, object>[])db.getDataAry("select * from products where ID=" + id.ToString());
+
+			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("errorCode", 0);
+			ret.Add("products", products);
+			return Ok(ret);
+		}
+
+		// POST api/<controller>
+		public IHttpActionResult Post([FromBody]Dictionary<string, object> value)
+		{
+			string sql = "INSERT INTO products ";
+			string tbn = "";
+			string val = "";
+			foreach (var kv in value)
+			{
+				tbn += kv.Key + ",";
+				Regex isNumeric = new Regex(@"^[\d\.]+$");
+				if (isNumeric.IsMatch((string)kv.Value))
+				{
+					val += kv.Value + ",";
+				}
+				else
+				{
+					val += "'" + kv.Value + "',";
+				}
+			}
+			sql += "(" + tbn.Substring(0, tbn.Length - 1) + ") VALUES (" + val.Substring(0, val.Length - 1) + ")";
+
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			int num = db.Insert(sql);
+
+			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("errorCode", num != 0 ? 0 : db.getRState());
+			ret.Add("insertId", num);
+			return Ok(ret);
+		}
+
+		// PUT api/<controller>/<id>
+		public void Put(int id, [FromBody]string value)
+		{
+		}
+
+		// DELETE api/<controller>/<id>
+		public IHttpActionResult Delete(int id)
+		{
+			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
+			string sql = "DELETE FROM products WHERE ID=" + id.ToString();
+			db.Execute(sql);
+
+			Dictionary<string, object> ret = new Dictionary<string, object>();
+			ret.Add("errorCode", 0);
+			return Ok(ret);
+		}
     }
 
 	public class UsersController : ApiController
@@ -61,19 +105,11 @@ namespace WebApi.Controllers
 		public IHttpActionResult GetUesr(int id)
 		{
 			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
-			users = (Dictionary<string, object>[])db.getDataAry("select * from users");
-
-			var user = users.FirstOrDefault(u => u.ContainsValue(id));
+			users = (Dictionary<string, object>[])db.getDataAry("select * from users where ID=" + id.ToString());
 
 			Dictionary<string, object> ret = new Dictionary<string, object>();
 			ret.Add("errorCode", 0);
-			if (user == null)
-			{
-				ret.Add("users", new Dictionary<string, object>[0]);
-			}
-			else {
-				ret.Add("users", new Dictionary<string, object>[]{user});
-			}
+			ret.Add("users", users);
 			return Ok(ret);
 		}
 
@@ -116,7 +152,7 @@ namespace WebApi.Controllers
 		public IHttpActionResult Delete(int id)
 		{
 			jtbc.db db = new jtbc.db(0, "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=App_Data/test.mdb;");
-			string sql = "DELETE FROM users WHERE id=" + id.ToString();
+			string sql = "DELETE FROM users WHERE ID=" + id.ToString();
 			db.Execute(sql);
 
 			Dictionary<string, object> ret = new Dictionary<string, object>();

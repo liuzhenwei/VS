@@ -5,32 +5,52 @@
 <title></title>
 <script src="http://code.jquery.com/jquery.js"></script>
 <style>
+form {padding: 10px 20px;}
 label {display:inline-block; width: 90px; margin-right: 5px;}
 </style>
 </head>
 <body>
-<h2>查询所有数据</h2>
-<div>
-	<p><button id="getAll">查询</button></p>
-</div>
-<h2>查询单一数据</h2>
-<div>
-	<p>ID: <input type="text" size="5" maxlength="4" /><button id="get">查询</button></p>
-</div>
-<h2>添加数据</h2>
-<div>
-	<label>Username: </label><input type="text" name="username" /><br />
-	<label>Age: </label><input type="text" name="age" /><br />
-	<label>Gender: </label><input type="text" name="gender" /><br />
-	<button id="post">添加</button>
-</div>
-<h2>删除数据</h2>
-<div>
-	<p>ID: <input type="text" size="5" maxlength="4" /><button id="delete">删除</button></p>
-</div>
+<form action="" autocomplete="off">
+	<p>选择数据表: 
+		<select id="table">
+			<option value="users">用户</option>
+			<option value="products">产品</option>	
+		</select>
+	</p>
+	<h2>查询所有数据</h2>
+	<div>
+		<p><button id="getAll">查询</button></p>
+	</div>
+	<h2>查询单一数据</h2>
+	<div>
+		<p>ID: <input type="text" size="5" maxlength="4" /><button id="get">查询</button></p>
+	</div>
+	<h2>删除数据</h2>
+	<div>
+		<p>ID: <input type="text" size="5" maxlength="4" /><button id="delete">删除</button></p>
+	</div>
+	<div class="post-users">
+		<h2>添加用户</h2>
+		<div>
+			<label>Username: </label><input type="text" name="username" /><br />
+			<label>Age: </label><input type="text" name="age" /><br />
+			<label>Gender: </label><input type="text" name="gender" /><br />
+			<button class="post">添加</button>
+		</div>
+	</div>
+	<div class="post-products" style="display:none;">
+		<h2>添加产品</h2>
+		<div>
+			<label>Product: </label><input type="text" name="prodname" /><br />
+			<label>Price: </label><input type="text" name="price" /><br />
+			<label>Category: </label><input type="text" name="category" /><br />
+			<button class="post">添加</button>
+		</div>
+	</div>
+</form>
 <script>
 $(function () {
-	function showUsers(list) {
+	function showList(list) {
 		var html = '<table style="min-width:400px;">';
 		if (list.length) {
 			for (var i = 0; i < list.length; i++) {
@@ -54,33 +74,61 @@ $(function () {
 		return html;
 	}
 
+	function getTable(){
+		return $('#table').val();
+	}
+
+	$('form').on('submit', function(event){
+		event.preventDefault();
+	});
+
+	$('#table').on('change', function(){
+		var v = $(this).val();
+		$('div[class^="post-"]').hide();
+		$('.post-' + v).show();
+	});
+
 	$('#getAll').on('click', function () {
+		var table = getTable();
 		var $btn = $(this);
 		$.ajax({
-			url: '/api/users',
+			url: '/api/' + table,
 			dataType: 'json',
 			type: 'get'
 		}).done(function (data) {
-			var html = showUsers(data.users);
+			var html = showList(data[table]);
 			var $div = $btn.closest('div');
 			$div.find('table').remove().end().append(html);
 		});
 	});
 
 	$('#get').on('click', function () {
+		var table = getTable();
 		var $btn = $(this), id = $btn.prev().val();
 		$.ajax({
-			url: '/api/users/' + id,
+			url: '/api/' + table + '/' + id,
 			dataType: 'json',
 			type: 'get'
 		}).done(function (data) {
-			var html = showUsers(data.users);
+			var html = showList(data[table]);
 			var $div = $btn.closest('div');
 			$div.find('table').remove().end().append(html);
 		});
 	});
 
-	$('#post').on('click', function () {
+	$('#delete').on('click', function () {
+		var $btn = $(this), id = $btn.prev().val();
+		$.ajax({
+			url: '/api/' + getTable() + '/' + id,
+			dataType: 'json',
+			type: 'delete'
+		}).done(function (data) {
+			console.log(data);
+			if( data.errorCode == 0 ) alert('删除成功')
+		});
+	});
+
+	$('.post').on('click', function () {
 		var $btn = $(this), $div = $btn.closest('div');
 		var data = {};
 		$div.find(':text').each(function () {
@@ -88,7 +136,7 @@ $(function () {
 			data[$text.attr('name')] = $text.val();
 		});
 		$.ajax({
-			url: '/api/users',
+			url: '/api/' + getTable(),
 			dataType: 'json',
 			type: 'post',
 			data: JSON.stringify(data),
@@ -96,18 +144,6 @@ $(function () {
 		}).done(function (data) {
 			console.log(data);
 			if( data.errorCode == 0 ) alert('添加成功')
-		});
-	});
-
-	$('#delete').on('click', function () {
-		var $btn = $(this), id = $btn.prev().val();
-		$.ajax({
-			url: '/api/users/' + id,
-			dataType: 'json',
-			type: 'delete'
-		}).done(function (data) {
-			console.log(data);
-			if( data.errorCode == 0 ) alert('删除成功')
 		});
 	});
 });

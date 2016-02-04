@@ -18,7 +18,7 @@ namespace jtbc.dbc
         public virtual void Execute(string strSQL)
         {
 			this.rState = 0;
-			if (!cls.isEmpty(strSQL))
+			if ((string)strSQL != "")
 			{
                 try
                 {
@@ -43,7 +43,7 @@ namespace jtbc.dbc
         {
 			this.rState = 0;
 			int num = 0;
-			if (!cls.isEmpty(strSQL))
+			if ((string)strSQL != "")
             {
                 try
                 {
@@ -69,7 +69,7 @@ namespace jtbc.dbc
 		{
 			this.rState = 0;
 			int num = 0;
-			if (!cls.isEmpty(strSQL))
+			if ((string)strSQL != "")
 			{
 				Regex getName = new Regex(@"into\s(.*?)\s\(", RegexOptions.IgnoreCase);
 				Match matches = getName.Match(strSQL);
@@ -78,7 +78,7 @@ namespace jtbc.dbc
 				OleDbConnection connection = new OleDbConnection(this.connStr);
 				connection.Open();
 				OleDbCommand cmd = new OleDbCommand();
-				OleDbTransaction trans = connection.BeginTransaction(); //创建事务
+				OleDbTransaction trans = connection.BeginTransaction();
 				cmd.Connection = connection;
 				cmd.Transaction = trans;
 				try
@@ -86,7 +86,7 @@ namespace jtbc.dbc
 					cmd.CommandText = strSQL;
 					cmd.ExecuteNonQuery();
 					cmd.CommandText = "SELECT @@identity FROM " + name;
-					trans.Commit(); //提交事务
+					trans.Commit();
 					num = Convert.ToInt32(cmd.ExecuteScalar());
 				}
 				catch (Exception exception)
@@ -111,7 +111,7 @@ namespace jtbc.dbc
         {
             this.rState = 0;
 			Dictionary<string, object>[] rsArray = null;
-			if (!cls.isEmpty(strSQL))
+			if ((string)strSQL != "")
             {
 				try
 				{
@@ -144,7 +144,7 @@ namespace jtbc.dbc
 				{
 					this.rState = 1;
 					var errMsg = new Dictionary<string, object>();
-					errMsg.Add("msg", "数据库操作错误: " + exception.Message);
+					errMsg.Add("msg", "Operate DB Error: " + exception.Message);
 					rsArray = new Dictionary<string, object>[] { errMsg };
 					this.eMessage = exception.Message;
 				}
@@ -162,20 +162,13 @@ namespace jtbc.dbc
             string argObject = "";
             try
             {
-                string connStr = this.connStr;
-                string argRoutestr = cls.getParameter(connStr, "Data Source");
-                string newValue = HttpContext.Current.Server.MapPath(cls.getActualRoute(argRoutestr));
-                OleDbConnection connection = new OleDbConnection(connStr.Replace(argRoutestr, newValue));
+                OleDbConnection connection = new OleDbConnection(this.connStr);
                 connection.Open();
                 OleDbDataReader reader = new OleDbCommand(cmdText, connection).ExecuteReader();
                 int fieldCount = reader.FieldCount;
                 for (int i = 0; i < fieldCount; i++)
                 {
                     argObject = argObject + reader.GetName(i) + "|";
-                }
-                if (!cls.isEmpty(argObject))
-                {
-                    argObject = cls.getLRStr(argObject, "|", "leftr");
                 }
                 reader.Close();
                 connection.Close();
@@ -201,9 +194,15 @@ namespace jtbc.dbc
         public virtual void setConnStr(string connStr)
         {
 			this.sourceConnStr = connStr;
-			string ds = cls.getParameter(connStr, "Data Source");
-			string dbPath = HttpContext.Current.Server.MapPath(cls.getActualRoute(ds));
+			string ds = getParameter(connStr, "Data Source");
+			string dbPath = HttpContext.Current.Server.MapPath("/" + ds);
 			this.connStr = connStr.Replace(ds, dbPath);
+        }
+
+        public static string getParameter(string argString, string argKey, string argSpstr = ";")
+        {
+            Regex regex = new Regex("((?:^|" + argSpstr + ")" + argKey + "=(.[^" + argSpstr + "]*))");
+            return regex.Match(argString).Groups[2].Value;
         }
     }
 }
